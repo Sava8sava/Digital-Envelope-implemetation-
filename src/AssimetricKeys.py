@@ -23,7 +23,7 @@ def generate_rsa_key(size_in_bits : int = 2048):
         encryption_algorithm=serialization.NoEncryption()
     )
 
-    # 3. Extração e Serialização da Chave Pública
+    #xxtração e serialização da chave publica
     public_key = private_key.public_key()
     pem_publica = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
@@ -41,7 +41,7 @@ def generate_rsa_key(size_in_bits : int = 2048):
         print("Arquivos criados: 'private_key.pem' e 'public_key.pem'")
         
     except Exception as e:
-        print(f"Erro ao salvar os arquivos: {e}")
+        print(f"Erro ao salvar os arquivos: {str(e)}")
 
 def get_rsa_keys(privkey_path, pubkey_path):
     # TODO : refatorar pois esta muito hardcoded
@@ -88,7 +88,7 @@ def get_the_sign(private_key,message):
             )
         return True, signature 
     except Exception as e:
-        return False, f"Falha na assinatura : {e}"
+        return False, f"Falha na assinatura : {str(e)}"
 
 def encrypt_session_key(public_key, combined_hex):
     try:
@@ -103,3 +103,24 @@ def encrypt_session_key(public_key, combined_hex):
     except Exception as e:
         return False, f"Erro:cifragem RSA não foi possivel [{str(e)}]"
 
+def decrypt_session_key(private_key, encrypted_key):
+    try:
+        decrypted_bytes = private_key.decrypt(
+            encrypted_key,
+            padding.PKCS1v15() # o mesmo usado na cifragem 
+        )
+        return True, decrypted_bytes.decode('utf-8')
+    except Exception as e:
+        return False, f"Erro: Não foi possivel decifra a chave de sessão [{str(e)}]"
+
+def verify_sign(public_key, message_str, signature):
+    try:
+        public_key.verify(
+            signature,
+            message_str.encode('utf-8'),
+            padding.PKCS1v15(),
+            hashes.SHA512()
+        )
+        return True
+    except Exception:
+        return False 

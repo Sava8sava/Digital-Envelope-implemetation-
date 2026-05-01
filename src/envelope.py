@@ -111,7 +111,10 @@ class CreateDigitalEnvelope:
 class OpenDigitalEnvelope:
     def __init__(self) -> None:
         self.ciphertext = None 
-        self.session_key = None 
+        self.decrypted_message = None
+        self.encrypted_session_key= None 
+        self.decrypted_session_key= None
+        self.decrypted_iv = None 
         self.signature = None 
         self.private_key = None
         self.sender_public_key = None 
@@ -122,16 +125,16 @@ class OpenDigitalEnvelope:
             with open(os.path.join(folder_path, "mensagem.cif"), "rb") as f:
                 self.ciphertext = base64.b64decode(f.read())
             
-            with open(os.path.join(folder_path, "assinatura.sig"), "rb") as f:
+            with open(os.path.join(folder_path, "signature.sig"), "rb") as f:
                 self.signature = base64.b64decode(f.read())
                 
-            with open(os.path.join(folder_path, "chave_sessao.env"), "rb") as f:
+            with open(os.path.join(folder_path, "session_key.env"), "rb") as f:
                 self.encrypted_session_key = base64.b64decode(f.read())
             
             return True,"Sucesso: arquivos carregados"
         
         except Exception as e:
-            return False, f"Erro: Não foi possivel abrir os arquivos"
+            return False, f"Erro: Não foi possivel abrir os arquivos: [{e}]"
     
     # essa função abre a chave privada de quem recebeu e abre a chave publica de quem enviou
     def set_keys(self,reciver_privkey_path,sender_pubkey_path):
@@ -139,7 +142,7 @@ class OpenDigitalEnvelope:
             if not os.path.exists(reciver_privkey_path) or not os.path.exists(sender_pubkey_path):
                 return False, f"Erro: Path dos arquivos de chave não existem"
             
-            self.private_key, self.public_key = AssimetricKeys.get_rsa_keys(reciver_privkey_path,sender_pubkey_path) 
+            self.private_key, self.sender_public_key = AssimetricKeys.get_rsa_keys(reciver_privkey_path,sender_pubkey_path) 
             
             if self.private_key is None or self.sender_public_key is None:
                 return False, f"Erro: os arquivos exisem mas não são do formato Pem ou estão corrompidos"
@@ -149,3 +152,40 @@ class OpenDigitalEnvelope:
         except Exception as e:
             return False, f"Erro: falha na operação [{e}]"
 
+    def decrypt_session_key(self):
+        #recuperação da chave de sessão 
+        status_rsa, combined_hex = AssimetricKeys.decrypt_session_key(
+            self.private_key, self.encrypted_session_key
+        )
+        if not status_rsa: 
+            return False, combined_hex
+
+        #divisão da chave e do iv 
+        try:
+            session_key_hex = combined_hex[:32]
+            iv_hex = combined_hex[32:]
+            
+            key_bytes = bytes.fromhex(session_key_hex)
+            iv_bytes = bytes.fromhex(iv_hex)
+            
+            self.decrypted_session_key, self.decrypted_iv = key_bytes, iv_bytes
+            return True, "Sucesso: Chave de sessão decifrada"
+        except Exception:
+            return False, "Erro: não foi possivel processar o formato Hexadecimal da chave"
+
+    def decrypt_message(self):
+        if self.decrypted_session_key is None or self.decrypted_iv is None:
+            return False, "Erro: Chave de sessão e/ou iv vazios"
+
+        status_aes, result = SymmetricCipher.decrypt_message(
+            self.ciphertext, self.decrypted_session_key, self.decrypted_iv
+        )
+        
+        if status_aes:
+            self.decrypted_message = result
+            print(self.decrypted_message)
+            return True, "Sucesso: Messagem decifrada"
+        return False, result
+
+    def is_signature_valid(self):
+        return AssimetricKeys.verify_sign(self.sender_public_key,self.decrypted_message,self.signature) 
