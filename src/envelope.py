@@ -1,5 +1,6 @@
 import AssimetricKeys 
 import SymmetricCipher 
+import base64
 import os
 import gc
 
@@ -21,7 +22,7 @@ class CreateDigitalEnvelope:
             if not os.path.exists(pubk_path) or not os.path.exists(privk_path):
                 return False, f"Erro: Path dos arquivos de chave não existem"
             
-            self.private_key, self.public_key = AssimetricKeys.get_rsa_keys() 
+            self.private_key, self.public_key = AssimetricKeys.get_rsa_keys(privk_path,pubk_path) 
             
             if self.private_key is None or self.public_key is None:
                 return False, f"Erro: os arquivos exisem mas não são do formato Pem ou estão corrompidos"
@@ -31,7 +32,7 @@ class CreateDigitalEnvelope:
         except Exception as e:
             return False, f"Erro: falha na operação [{e}]"
     
-    def sing_message(self):
+    def sign_message(self):
         if self.private_key is None or not self.message:
             return False, f"Erro: Sua chave privada ou sua mensagem estão vazias"
         
@@ -71,7 +72,80 @@ class CreateDigitalEnvelope:
         if status:
             return True, result
         return False, result 
+    
+    #todo: o usuario pode definir o nome da mensagem 
+    def save_envelope(self, signature, encrypted_key, folder = "output"):
+        if not self.ciphertext:
+            return False,"Erro: texto cifrado não encontrado"
+
+        try:
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+            
+            #todo: ter que refatorar isso no futuro para testar com o cyberchef
+            paths = {
+                "ciphertext" : os.path.join(folder,"mensagem.cif"),
+                "Digital_signature" : os.path.join(folder,"signature.sig"),
+                "key" : os.path.join(folder, "session_key.env")
+            }
+
+            with open(paths["ciphertext"], "wb") as f:
+                f.write(base64.b64encode(self.ciphertext))
+
+            # Assinatura Digital (RSA)
+            with open(paths["Digital_signature"], "wb") as f:
+                f.write(base64.b64encode(signature))
+
+            # Chave de Sessão Cifrada (RSA)
+            with open(paths["key"], "wb") as f:
+                f.write(base64.b64encode(encrypted_key))           
+    
+            return True, f"Sucesso: arquivos salvos na pasta {folder}"
+        except Exception as e:
+            return False, f"Erro: não foi possivel salvar os arquivos [{e}]"
 
     def clear_sensitive_data(self):
         self.private_key = None
         gc.collect()
+
+class OpenDigitalEnvelope:
+    def __init__(self) -> None:
+        self.ciphertext = None 
+        self.session_key = None 
+        self.signature = None 
+        self.private_key = None
+        self.sender_public_key = None 
+
+    def open_envelope(self,folder_path):
+        # TODO: mudar essa parte no futuro para funcionar no cyberchef, muito hardcoded
+        try:
+            with open(os.path.join(folder_path, "mensagem.cif"), "rb") as f:
+                self.ciphertext = base64.b64decode(f.read())
+            
+            with open(os.path.join(folder_path, "assinatura.sig"), "rb") as f:
+                self.signature = base64.b64decode(f.read())
+                
+            with open(os.path.join(folder_path, "chave_sessao.env"), "rb") as f:
+                self.encrypted_session_key = base64.b64decode(f.read())
+            
+            return True,"Sucesso: arquivos carregados"
+        
+        except Exception as e:
+            return False, f"Erro: Não foi possivel abrir os arquivos"
+    
+    # essa função abre a chave privada de quem recebeu e abre a chave publica de quem enviou
+    def set_keys(self,reciver_privkey_path,sender_pubkey_path):
+        try:
+            if not os.path.exists(reciver_privkey_path) or not os.path.exists(sender_pubkey_path):
+                return False, f"Erro: Path dos arquivos de chave não existem"
+            
+            self.private_key, self.public_key = AssimetricKeys.get_rsa_keys(reciver_privkey_path,sender_pubkey_path) 
+            
+            if self.private_key is None or self.sender_public_key is None:
+                return False, f"Erro: os arquivos exisem mas não são do formato Pem ou estão corrompidos"
+            
+            return True,f"Sucesso ao carregar as chaves"
+        
+        except Exception as e:
+            return False, f"Erro: falha na operação [{e}]"
+

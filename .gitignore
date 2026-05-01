@@ -4,6 +4,7 @@ venv/
 .venv/
 env/
 bin/
+lib/
 lib64
 pyvenv.cfg
 
@@ -16,6 +17,7 @@ pyvenv.cfg
 mensagem_cifrada.*
 assinatura.*
 chave_secao_cifrada.*
+output/
 
 # Python caches
 __pycache__/

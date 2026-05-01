@@ -43,9 +43,10 @@ def generate_rsa_key(size_in_bits : int = 2048):
     except Exception as e:
         print(f"Erro ao salvar os arquivos: {e}")
 
-def get_rsa_keys():
-    priv_path = "private_key.pem"
-    pub_path = "public_key.pem"
+def get_rsa_keys(privkey_path, pubkey_path):
+    # TODO : refatorar pois esta muito hardcoded
+    priv_path = privkey_path
+    pub_path = pubkey_path
 
     private_key = None
     public_key = None
