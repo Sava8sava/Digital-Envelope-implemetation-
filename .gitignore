@@ -3,6 +3,9 @@
 venv/
 .venv/
 env/
+bin/
+lib64
+pyvenv.cfg
 
 # Chaves Privadas e arquivos sensíveis (Segurança)
 *.pem
