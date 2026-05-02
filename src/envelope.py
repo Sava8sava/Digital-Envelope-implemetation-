@@ -8,7 +8,7 @@ class CreateDigitalEnvelope:
     def __init__(self) -> None:
         self.message = None
         #TODO: as chaves assimetricas devem ser apagadas depois do processamento 
-        self.public_key = None 
+        self.public_key = None #o caminho da chave publica é a do destinatario não a do remetente 
         self.private_key = None 
         self.session_key = None
         self.iv = None

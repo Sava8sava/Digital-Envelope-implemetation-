@@ -1,24 +1,2 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
-# Ambientes Virtuais
-venv/
-.venv/
-env/
-bin/
-lib/
-lib64
-pyvenv.cfg
-
-# Chaves Privadas e arquivos sensíveis (Segurança)
-*.pem
-*.key
-
-# Arquivos de saída do programa (conforme o padrão escolhido: Hex ou Base64)
-# Se o seu programa gera arquivos específicos, ignore-os também
-mensagem_cifrada.*
-assinatura.*
-chave_secao_cifrada.*
-output/
-
-# Python caches
-__pycache__/
-*.py[cod]
+*
