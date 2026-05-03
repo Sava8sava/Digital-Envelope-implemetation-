@@ -596,6 +596,192 @@ body {
   color: var(--text-dim);
 }
 
+/* ─── Envelope Folder Checklist ──────────────────────────────── */
+.envelope-checklist {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 0 2px;
+}
+
+.checklist-item {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.checklist-item.found {
+  color: var(--green);
+  background: var(--green-dim);
+  border-color: rgba(0, 232, 122, 0.25);
+}
+
+.checklist-item.missing {
+  color: var(--text-dim);
+  background: transparent;
+}
+
+/* ─── Key Size Selector ──────────────────────────────────────── */
+.key-size-group {
+  display: flex;
+  gap: 10px;
+}
+
+.key-size-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-mono);
+}
+
+.key-size-btn:hover:not(.is-disabled) {
+  border-color: var(--border-accent);
+  color: var(--text-primary);
+}
+
+.key-size-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.key-size-btn.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.key-size-value {
+  font-size: 15px;
+  letter-spacing: 0.1em;
+}
+
+.key-size-tag {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--green);
+  background: var(--green-dim);
+  padding: 2px 8px;
+  border-radius: var(--radius);
+}
+
+.field-optional {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: 4px;
+  letter-spacing: 0.08em;
+}
+
+/* ─── Keygen Result ──────────────────────────────────────────── */
+.keygen-result {
+  margin: 0 32px 28px;
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  border-radius: var(--radius);
+  background: var(--accent-dim);
+  overflow: hidden;
+}
+
+.keygen-result-header {
+  padding: 13px 20px;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.keygen-badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  background: rgba(0, 200, 255, 0.1);
+  border: 1px solid rgba(0, 200, 255, 0.25);
+  padding: 3px 10px;
+  border-radius: var(--radius);
+}
+
+.keygen-files {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(0, 200, 255, 0.1);
+}
+
+.key-file-card {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-panel);
+}
+
+.key-file-card.is-private {
+  border-left: 3px solid var(--red);
+}
+
+.key-file-card.is-public {
+  border-left: 3px solid var(--green);
+}
+
+.key-file-type {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: var(--text-secondary);
+}
+
+.key-file-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.key-file-path {
+  font-size: 12px;
+  color: var(--text-dim);
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.keygen-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(0, 200, 255, 0.1);
+  background: rgba(255, 208, 96, 0.05);
+}
+
+.keygen-warning-icon {
+  font-size: 16px;
+  color: var(--yellow);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.keygen-warning p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.keygen-warning strong {
+  color: var(--yellow);
+}
+
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 680px) {
   .header-inner {
@@ -671,8 +857,17 @@ body {
   }
 
   .log-box,
-  .result-box {
+  .result-box,
+  .keygen-result {
     margin: 0 20px 22px;
+  }
+
+  .keygen-files {
+    grid-template-columns: 1fr;
+  }
+
+  .key-size-group {
+    flex-direction: column;
   }
 
   .log-entry {

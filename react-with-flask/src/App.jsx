@@ -1,10 +1,17 @@
 import { useState } from 'react'
 import CreateEnvelope from './components/CreateEnvelope'
 import OpenEnvelope from './components/OpenEnvelope'
+import GenerateKeys from './components/GenerateKeys'
 import './App.css'
 
+const TABS = [
+  { id: 'keys',   num: '01', label: 'GERAR CHAVES'   },
+  { id: 'create', num: '02', label: 'CRIAR ENVELOPE' },
+  { id: 'open',   num: '03', label: 'ABRIR ENVELOPE' },
+]
+
 function App() {
-  const [activeTab, setActiveTab] = useState('create')
+  const [activeTab, setActiveTab] = useState('keys')
 
   return (
     <div className="app">
@@ -25,24 +32,22 @@ function App() {
       </header>
 
       <nav className="tab-nav">
-        <button
-          className={`tab-btn ${activeTab === 'create' ? 'active' : ''}`}
-          onClick={() => setActiveTab('create')}
-        >
-          <span className="tab-num">01</span>
-          CRIAR ENVELOPE
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'open' ? 'active' : ''}`}
-          onClick={() => setActiveTab('open')}
-        >
-          <span className="tab-num">02</span>
-          ABRIR ENVELOPE
-        </button>
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span className="tab-num">{tab.num}</span>
+            {tab.label}
+          </button>
+        ))}
       </nav>
 
       <main className="main-content">
-        {activeTab === 'create' ? <CreateEnvelope /> : <OpenEnvelope />}
+        {activeTab === 'keys'   && <GenerateKeys />}
+        {activeTab === 'create' && <CreateEnvelope />}
+        {activeTab === 'open'   && <OpenEnvelope />}
       </main>
 
       <footer className="app-footer">
