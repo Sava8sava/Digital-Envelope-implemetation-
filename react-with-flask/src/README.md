@@ -1,20 +1,67 @@
-# Digital-Envelope-implemetation-
+# Implementação de Envelope Digital
 
-# 1.Source code 
+Este repositório contém a implementação de um sistema de **Envelope Digital**, demonstrando a aplicação prática de conceitos essenciais de segurança da informação e criptografia, incluindo confidencialidade, integridade, autenticação e não repúdio.
 
-## Inteface
-1.1 Input do usuario para criação do envelope: Mensagem, o nome do arquivo de saida da mensagem, sua chave privada usada para assinatura e a chave publica do destinatario(o string path do arquivo delas)
-- caso o usario não tenha o par de chaves assimetricas, existe uma função no arquivo assimetrickeys.py que geram um par(mas lembrando a entrada é chave privada do remetente e a **publica do destinatario**)  
-2. A chave de sessão é gerada pelo proprio envelope(ela acaba sendo mostrada no terminal pq eu tive que testar no cyberchef - Felipe) 
-3. a mensagem vai ser envelopada e tera a seguinte saida: um arquivo mensagem cifrado, a chave de sessão cifrada, e a assinatura(eu não identifiquei se o aplicativo deve fazer o envio, ou se o envio do arquivo pode ser feito por qualquer meio como email ou zapzap, perguntar pro candre depois) 
-4. Em caso de algum erro no processo de criação do envelope a inteface não pode deixar de funcionar, ela deve informar ao usario qual foi o erro(na criação do envelope cada etapa retorna uma variavel booleana como status, e um segunda saida que pode ser o resultado da função ou uma mensagem de sucesso em caso de true, ou False acompanhada de uma mensagem que identifica o erro )
+---
 
-1.2 Input do usuario para abrir o envelope: Os três arquivos que formam o envelope, a chave privada do usuario, a chave publica do remetente para checar a assinatura 
-1. O aplicativo ira mostrar(ou criar um arquivo) da mensagem decifrada e um identificação que a mensagem é valida via assinatura digital 
-2. ainda não identifiquei se o aplicativo deve mostrar tambem a chave de sessão em hex
-3. assim como o anterior todas as funções dessa classe retornam o status booleano + mensagem de status ou resultado 
+## 🛠️ Tecnologias Utilizadas
 
-## Alguns detalhes pertinentes 
-- O envelope para um primeiro teste foi extremamente hard coded, ele ainda não esta preparado para receber as entradas da interface diretamente, mas durante a criaçõ da interface eu pretendo resolver
-- Os arquivos de chave assimetrica estão em .pem como exigido trabalho
-- como eu não testei com outro grupo o formato dos arquivos de saida não esta padronizado  
+A arquitetura da aplicação foi desenhada dividindo as responsabilidades entre o cliente (interface) e o servidor (processamento criptográfico):
+
+* **Frontend**: Desenvolvido utilizando **React** juntamente com **Vite**. Esta combinação garante uma interface de usuário rápida, moderna e componentizada para facilitar as interações com os arquivos e formulários.
+* **Backend / API**: Construído com **Flask** (Python). O Flask funciona como a API RESTful que conecta o Frontend em React aos módulos de criptografia no backend. Ele expõe rotas (como `/api/generate-keys`, `/api/create-envelope`, `/api/open-envelope`) para processar as requisições com segurança.
+* **Criptografia**: Utilização da biblioteca `cryptography` nativa do ecossistema Python (módulos `hazmat`) para garantir o uso de primitivas criptográficas padronizadas e seguras.
+
+---
+
+## 🔐 Recursos de Segurança e Criptografia
+
+A aplicação busca implementar recursos robustos de segurança para fins de teste e estudo, combinando criptografia simétrica e assimétrica na formação de um envelope digital completo:
+
+* **Criptografia Simétrica (AES-CBC)**: Utilizada para cifrar a mensagem real do usuário. Para cada envelope, o sistema gera aleatoriamente (`os.urandom`) uma nova Chave de Sessão de 128 bits e um Vetor de Inicialização (IV). O preenchimento dos blocos utiliza **PKCS7**.
+* **Criptografia Assimétrica (RSA)**: Utilizada para o transporte seguro da Chave de Sessão. Suporta a geração de chaves de **1024 ou 2048 bits**. A chave de sessão AES é cifrada com a Chave Pública do destinatário utilizando o esquema de preenchimento **PKCS1v15**.
+* **Assinatura Digital (RSA + SHA-512)**: Garante a autenticidade e a integridade da mensagem (não repúdio). A mensagem em texto claro passa por uma função de hash SHA-512 e é assinada com a Chave Privada do remetente antes do empacotamento.
+* **Limpeza de Memória (Segurança em execução)**: A aplicação se preocupa com os dados em memória, possuindo métodos (`clear_sensitive_data()`) e acionando o *Garbage Collector* para remover chaves privadas da RAM após o uso imediato.
+
+---
+
+## 💻 Funcionalidades (Nível de Usuário)
+
+Através da interface interativa, o usuário pode realizar o ciclo completo da troca de mensagens seguras:
+
+1.  **Geração de Chaves RSA**: 
+    * Permite a criação de um novo par de chaves (Pública e Privada), atribuindo uma "identidade" (ex: Alice, Bob).
+    * O sistema exporta automaticamente os arquivos no formato padrão de codificação `.pem`.
+2.  **Criação do Envelope Digital (Envio)**:
+    * O remetente digita uma mensagem secreta de texto.
+    * Carrega a sua **Chave Privada** (usada pelo sistema para gerar a assinatura digital).
+    * Carrega a **Chave Pública do Destinatário** (usada pelo sistema para cifrar a chave de sessão).
+    * Como saída, o sistema gera e baixa os componentes do envelope em Base64: a mensagem cifrada (`.cif`), a assinatura digital (`.sig`) e a chave de sessão criptografada (`.env`).
+3.  **Abertura do Envelope Digital (Recebimento)**:
+    * O destinatário carrega os três arquivos que formam o envelope (`mensagem.cif`, `signature.sig`, `session_key.env`).
+    * Fornece a sua **Chave Privada** (para conseguir decifrar a chave de sessão AES).
+    * Fornece a **Chave Pública do Remetente** (para que o sistema possa validar a assinatura digital original).
+    * A aplicação exibe o texto decifrado na tela e apresenta um **status de segurança visual**, informando de maneira clara se a Assinatura Digital é **Válida** (remetente autenticado) ou se apresenta algum alerta de adulteração.
+
+---
+
+## 🚀 Como Inicializar e Requisitos
+
+Para executar esta aplicação em sua máquina local, você deve garantir que possui os seguintes pré-requisitos instalados:
+
+* **Python 3.14**: Necessário para rodar o backend em Flask e os scripts de criptografia.
+* **Node.js & npm**: Necessários para gerenciar as dependências do React e executar o servidor de desenvolvimento do Vite.
+* **React.js**: Necessário para carregar os componentes do frontend utilizados.
+
+### Execução Automatizada
+
+Para facilitar o processo de configuração, utilize o script de inicialização inteligente incluído na raiz do projeto:
+
+1.  Abra o terminal na pasta api do projeto (`react-with-flask/api`).
+2.  Execute o comando:
+    ```bash
+    python init.py
+    ```
+
+**O que este comando faz por você?**
+O script irá criar automaticamente um ambiente virtual Python (`venv`), instalará todas as dependências necessárias (como `cryptography` e `flask-cors`), baixará os pacotes do Node, realizará o build do frontend e, por fim, iniciará os servidores de API e Interface, abrindo automaticamente uma aba no seu navegador em `http://localhost:5173`.
