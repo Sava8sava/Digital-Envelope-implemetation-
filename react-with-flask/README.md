@@ -42,3 +42,26 @@ Através da interface interativa, o usuário pode realizar o ciclo completo da t
     * Fornece a sua **Chave Privada** (para conseguir decifrar a chave de sessão AES).
     * Fornece a **Chave Pública do Remetente** (para que o sistema possa validar a assinatura digital original).
     * A aplicação exibe o texto decifrado na tela e apresenta um **status de segurança visual**, informando de maneira clara se a Assinatura Digital é **Válida** (remetente autenticado) ou se apresenta algum alerta de adulteração.
+
+---
+
+## 🚀 Como Inicializar e Requisitos
+
+Para executar esta aplicação em sua máquina local, você deve garantir que possui os seguintes pré-requisitos instalados:
+
+* **Python 3.14**: Necessário para rodar o backend em Flask e os scripts de criptografia.
+* **Node.js & npm**: Necessários para gerenciar as dependências do React e executar o servidor de desenvolvimento do Vite.
+* **React.js**: Necessário para carregar os componentes do frontend utilizados.
+
+### Execução Automatizada
+
+Para facilitar o processo de configuração, utilize o script de inicialização inteligente incluído na raiz do projeto:
+
+1.  Abra o terminal na pasta api do projeto (`react-with-flask/api`).
+2.  Execute o comando:
+    ```bash
+    python init.py
+    ```
+
+**O que este comando faz por você?**
+O script irá criar automaticamente um ambiente virtual Python (`venv`), instalará todas as dependências necessárias (como `cryptography` e `flask-cors`), baixará os pacotes do Node, realizará o build do frontend e, por fim, iniciará os servidores de API e Interface, abrindo automaticamente uma aba no seu navegador em `http://localhost:5173`.
