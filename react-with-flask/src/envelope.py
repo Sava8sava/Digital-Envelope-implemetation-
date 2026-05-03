@@ -183,7 +183,7 @@ class OpenDigitalEnvelope:
         
         if status_aes:
             self.decrypted_message = result
-            print(self.decrypted_message)
+            # print(self.decrypted_message)
             return True, "Sucesso: Messagem decifrada"
         return False, result
 
