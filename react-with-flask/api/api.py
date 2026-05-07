@@ -10,7 +10,7 @@ sys.path.insert(0, _src)
 from flask import Flask, request, jsonify
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-from envelope import CreateDigitalEnvelope, OpenDigitalEnvelope
+from envelope import CreateDigitalEnvelope, OpenDigitalEnvelope # type: ignore
 
 app = Flask(__name__)
 
