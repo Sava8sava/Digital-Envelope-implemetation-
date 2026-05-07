@@ -65,3 +65,16 @@ Para facilitar o processo de configuração, utilize o script de inicialização
 
 **O que este comando faz por você?**
 O script irá criar automaticamente um ambiente virtual Python (`venv`), instalará todas as dependências necessárias (como `cryptography` e `flask-cors`), baixará os pacotes do Node, realizará o build do frontend e, por fim, iniciará os servidores de API e Interface, abrindo automaticamente uma aba no seu navegador em `http://localhost:5173`.
+---
+
+## 📂 Diretórios de Salvamento Local
+
+Para manter o projeto organizado e seguro, toda a geração de arquivos feita pela aplicação é estruturada automaticamente dentro da pasta do backend (`api/`). Evitando que arquivos criptográficos se misturem ao código-fonte:
+
+* **Chaves Criptográficas (`api/keys/`)**: Todas as chaves RSA geradas pela aplicação são salvas neste diretório. Ele é subdividido em:
+  * `private/`: Contém as suas chaves privadas (`.pem`). **Atenção:** Estes arquivos são de uso estritamente pessoal e nunca devem ser compartilhados ou expostos.
+  * `public/`: Contém as chaves públicas (`.pem`). Estes arquivos podem ser livremente enviados aos remetentes que desejam lhe enviar mensagens seguras.
+* **Envelopes Digitais (`api/envelopes/`)**: Ao criar um novo envelope digital, o sistema gera uma subpasta automática com o nome de saída que você escolheu (ex: `api/envelopes/meu_envelope/`). Dentro desta pasta específica, você encontrará os três artefatos prontos para envio ao destinatário:
+  * `mensagem.cif`: A mensagem original cifrada simetricamente (AES).
+  * `session_key.env`: A chave de sessão envelopada/cifrada com a chave pública do destinatário (RSA).
+  * `signature.sig`: A assinatura digital que garante a sua autoria (RSA + SHA-512).

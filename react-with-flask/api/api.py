@@ -15,21 +15,18 @@ from envelope import CreateDigitalEnvelope, OpenDigitalEnvelope
 app = Flask(__name__)
 
 # ─── Repositório de chaves ────────────────────────────────────────────────────
-#
-# Estrutura criada automaticamente dentro de api/ na primeira geração:
-#
 #   api/keys/
 #     private/   ← chaves privadas  (.pem)
 #     public/    ← chaves públicas  (.pem)
 #
-# Nomenclatura: {identidade}_{YYYYMMDD}_{HHMMSS}_{tipo}.pem
+# Nomes: nome, aaaa/mm/dd, hh/mm/ss, tipo.pem
 #   Exemplo:  alice_20260503_143021_private.pem
 #             alice_20260503_143021_public.pem
 #
 KEYS_ROOT    = os.path.join(_here, 'keys')
 KEYS_PRIVATE = os.path.join(KEYS_ROOT, 'private')
 KEYS_PUBLIC  = os.path.join(KEYS_ROOT, 'public')
-
+ENVELOPES_ROOT = os.path.join(_here, 'envelopes')
 
 def ensure_key_dirs():
     os.makedirs(KEYS_PRIVATE, exist_ok=True)
@@ -171,7 +168,8 @@ def create_envelope():
     if not ok:
         return jsonify({'error': encrypted_key, 'steps': steps}), 400
 
-    ok, msg = envelope.save_envelope(signature, encrypted_key, folder=output_name)
+    caminho_envelope = os.path.join(ENVELOPES_ROOT, output_name)
+    ok, msg = envelope.save_envelope(signature, encrypted_key, folder=caminho_envelope)
     steps.append({'status': 'success' if ok else 'error', 'message': msg})
     if not ok:
         return jsonify({'error': msg, 'steps': steps}), 400
