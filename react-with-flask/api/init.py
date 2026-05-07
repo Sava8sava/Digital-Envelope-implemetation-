@@ -4,6 +4,12 @@ import venv
 import sys
 import webbrowser
 import time
+import socket
+
+def get_free_port():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('', 0)) # O '0' diz ao SO para escolher qualquer porta livre
+        return s.getsockname()[1]
 
 def main():
     # Define o diretório base do projeto como o diretório atual de onde o script está sendo rodado
@@ -57,16 +63,21 @@ def main():
 
     # 5. Iniciando os Serviços e Abrindo o Navegador
     print("\n[5/5] === Configuração Concluída! Iniciando servidores... ===")
-    
+
+    porta_livre = str(get_free_port())
+    print(f"📡 Porta dinâmica alocada para a API Flask: {porta_livre}")
+    ambiente_atual = os.environ.copy()
+    ambiente_atual['API_PORT'] = porta_livre
+
     frontend_process = None
     backend_process = None
 
     try:
         # Inicia o frontend em background
-        frontend_process = subprocess.Popen([npm_cmd, 'run', 'dev'], cwd=base_dir)
+        frontend_process = subprocess.Popen([npm_cmd, 'run', 'dev'], cwd=base_dir, env=ambiente_atual)
 
         # Inicia o backend
-        backend_process = subprocess.Popen([npm_cmd, 'run', 'api'], cwd=base_dir)
+        backend_process = subprocess.Popen([npm_cmd, 'run', 'api'], cwd=base_dir, env=ambiente_atual)
 
         # Pequena pausa para garantir que o Vite suba antes de abrir o browser
         print("Abrindo a aplicação no seu navegador padrão...")
