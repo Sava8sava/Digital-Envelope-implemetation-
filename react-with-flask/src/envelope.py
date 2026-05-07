@@ -122,19 +122,30 @@ class OpenDigitalEnvelope:
     def open_envelope(self,folder_path):
         # TODO: mudar essa parte no futuro para funcionar no cyberchef, muito hardcoded
         try:
-            with open(os.path.join(folder_path, "mensagem.cif"), "rb") as f:
+            def find_by_ext(ext):
+                files = [f for f in os.listdir(folder_path) if f.endswith(ext)]
+                return os.path.join(folder_path, files[0]) if files else None
+
+            path_cif = find_by_ext(".cif")
+            path_sig = find_by_ext(".sig")
+            path_env = find_by_ext(".env")
+
+            if not all([path_cif, path_sig, path_env]):
+                return False, "Erro: Faltam arquivos com as extensões .cif, .sig ou .env na pasta."
+
+            with open(path_cif, "rb") as f:
                 self.ciphertext = base64.b64decode(f.read())
             
-            with open(os.path.join(folder_path, "signature.sig"), "rb") as f:
+            with open(path_sig, "rb") as f:
                 self.signature = base64.b64decode(f.read())
                 
-            with open(os.path.join(folder_path, "session_key.env"), "rb") as f:
+            with open(path_env, "rb") as f:
                 self.encrypted_session_key = base64.b64decode(f.read())
             
-            return True,"Sucesso: arquivos carregados"
+            return True, "Sucesso: arquivos carregados via extensão"
         
         except Exception as e:
-            return False, f"Erro: Não foi possivel abrir os arquivos: [{e}]"
+            return False, f"Erro ao processar arquivos: {str(e)}"
     
     # essa função abre a chave privada de quem recebeu e abre a chave publica de quem enviou
     def set_keys(self,reciver_privkey_path,sender_pubkey_path):

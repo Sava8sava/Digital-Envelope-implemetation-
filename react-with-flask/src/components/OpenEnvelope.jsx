@@ -2,6 +2,12 @@ import { useState, useRef } from 'react'
 import StatusLog from './StatusLog'
 import FileInput from './FileInput'
 
+const EXTENSIONS = {
+  ciphertext : '.cif',
+  signature  : '.sig',
+  sessionKey : '.env'
+}
+
 const ENVELOPE_FILES = ['mensagem.cif', 'signature.sig', 'session_key.env']
 
 const INITIAL_STATE = {
@@ -26,9 +32,11 @@ function OpenEnvelope() {
     const files = Array.from(e.target.files)
     const mapped = {}
     files.forEach(file => {
-      const name = file.name
-      if (ENVELOPE_FILES.includes(name)) mapped[name] = file
-    })
+      const name = file.name.toLowerCase()
+      if (name.endsWith(EXTENSIONS.ciphertext)) mapped['mensagem.cif'] = file
+      if (name.endsWith(EXTENSIONS.signature))  mapped['signature.sig'] = file
+      if (name.endsWith(EXTENSIONS.sessionKey)) mapped['session_key.env'] = file
+    });
     setForm(prev => ({ ...prev, envelopeFiles: mapped }))
   }
 
