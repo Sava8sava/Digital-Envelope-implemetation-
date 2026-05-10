@@ -51,7 +51,6 @@ Para executar esta aplicação em sua máquina local, você deve garantir que po
 
 * **Python 3.14**: Necessário para rodar o backend em Flask e os scripts de criptografia.
 * **Node.js & npm**: Necessários para gerenciar as dependências do React e executar o servidor de desenvolvimento do Vite.
-* **React.js**: Necessário para carregar os componentes do frontend utilizados.
 
 ### Execução Automatizada
 
