@@ -49,18 +49,14 @@ function OpenEnvelope() {
   const missingFiles = ENVELOPE_FILES.filter(f => !form.envelopeFiles[f])
   const folderReady  = missingFiles.length === 0
 
-  // Lê um File como ArrayBuffer e retorna base64
-  const readAsBase64 = (file) =>
+  // Lê um File como ArrayBuffer e retorna base64 ou hex
+  const readFileContent = (file) =>
     new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload  = () => {
-        const bytes  = new Uint8Array(reader.result)
-        const binary = bytes.reduce((acc, b) => acc + String.fromCharCode(b), '')
-        resolve(btoa(binary))
-      }
-      reader.onerror = reject
-      reader.readAsArrayBuffer(file)
-    })
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result); // Retorna o texto puro (Hex ou B64)
+      reader.onerror = reject;
+      reader.readAsText(file); // <--- Use readAsText em vez de ArrayBuffer
+  });
 
   const handleSubmit = async () => {
     const { envelopeFiles, privateKeyContent, senderPublicKeyContent } = form
@@ -82,10 +78,10 @@ function OpenEnvelope() {
       addLog('info', 'Lendo arquivos do envelope...')
 
       // Lê os três arquivos binários como base64
-      const [cipherB64, sigB64, keyB64] = await Promise.all([
-        readAsBase64(envelopeFiles['mensagem.cif']),
-        readAsBase64(envelopeFiles['signature.sig']),
-        readAsBase64(envelopeFiles['session_key.env']),
+      const [cipherText, sigText, keyText] = await Promise.all([
+        readFileContent(envelopeFiles['mensagem.cif']),
+        readFileContent(envelopeFiles['signature.sig']),
+        readFileContent(envelopeFiles['session_key.env']),
       ])
 
       addLog('info', 'Iniciando processo de abertura do envelope...')
@@ -94,9 +90,9 @@ function OpenEnvelope() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ciphertext_b64:        cipherB64,
-          signature_b64:         sigB64,
-          session_key_b64:       keyB64,
+          ciphertext_raw:        cipherText,
+          signature_raw:         sigText,
+          session_key_raw:       keyText,
           private_key_content:   privateKeyContent,
           sender_public_key_content: senderPublicKeyContent,
         }),

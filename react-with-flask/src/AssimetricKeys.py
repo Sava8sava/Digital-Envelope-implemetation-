@@ -105,6 +105,7 @@ def encrypt_session_key(public_key, combined_hex):
 
 def decrypt_session_key(private_key, encrypted_key):
     try:
+        print(f"DEBUG: Tamanho da chave recebida: {len(encrypted_key)} bytes")
         decrypted_bytes = private_key.decrypt(
             encrypted_key,
             padding.PKCS1v15() # o mesmo usado na cifragem 

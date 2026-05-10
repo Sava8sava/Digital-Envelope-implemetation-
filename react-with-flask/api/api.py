@@ -187,13 +187,13 @@ def open_envelope():
     import base64 as b64mod
     data = request.get_json()
 
-    ciphertext_b64            = data.get('ciphertext_b64', '').strip()
-    signature_b64             = data.get('signature_b64', '').strip()
-    session_key_b64           = data.get('session_key_b64', '').strip()
+    ciphertext_raw            = data.get('ciphertext_raw', '').strip()
+    signature_raw             = data.get('signature_raw', '').strip()
+    session_key_raw           = data.get('session_key_raw', '').strip()
     private_key_content       = data.get('private_key_content', '').strip()
     sender_public_key_content = data.get('sender_public_key_content', '').strip()
 
-    if not all([ciphertext_b64, signature_b64, session_key_b64,
+    if not all([ciphertext_raw, signature_raw, session_key_raw,
                 private_key_content, sender_public_key_content]):
         return jsonify({'error': 'Campos obrigatórios ausentes.'}), 400
 
@@ -202,9 +202,9 @@ def open_envelope():
 
     # Carrega os arquivos do envelope diretamente da memória (enviados como base64)
     try:
-        decifrador.ciphertext             = b64mod.b64decode(b64mod.b64decode(ciphertext_b64))
-        decifrador.signature              = b64mod.b64decode(b64mod.b64decode(signature_b64))
-        decifrador.encrypted_session_key  = b64mod.b64decode(b64mod.b64decode(session_key_b64))
+        decifrador.ciphertext = OpenDigitalEnvelope.smart_decode(ciphertext_raw.encode('utf-8'))
+        decifrador.signature  = OpenDigitalEnvelope.smart_decode(signature_raw.encode('utf-8'))
+        decifrador.encrypted_session_key = OpenDigitalEnvelope.smart_decode(session_key_raw.encode('utf-8'))
         steps.append({'status': 'success', 'message': 'Arquivos do envelope carregados.'})
     except Exception as e:
         msg = f'Erro ao decodificar arquivos do envelope: {str(e)}'

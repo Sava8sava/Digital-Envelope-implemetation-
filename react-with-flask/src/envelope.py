@@ -134,13 +134,13 @@ class OpenDigitalEnvelope:
                 return False, "Erro: Faltam arquivos com as extensões .cif, .sig ou .env na pasta."
 
             with open(path_cif, "rb") as f:
-                self.ciphertext = base64.b64decode(f.read())
+                self.ciphertext = self.smart_decode(f.read())
             
             with open(path_sig, "rb") as f:
-                self.signature = base64.b64decode(f.read())
+                self.signature = self.smart_decode(f.read())
                 
             with open(path_env, "rb") as f:
-                self.encrypted_session_key = base64.b64decode(f.read())
+                self.encrypted_session_key = self.smart_decode(f.read())
             
             return True, "Sucesso: arquivos carregados via extensão"
         
@@ -199,4 +199,19 @@ class OpenDigitalEnvelope:
         return False, result
 
     def is_signature_valid(self):
-        return AssimetricKeys.verify_sign(self.sender_public_key,self.decrypted_message,self.signature) 
+        return AssimetricKeys.verify_sign(self.sender_public_key,self.decrypted_message,self.signature)
+    
+    @staticmethod
+    def smart_decode(data_bytes):
+        try:
+            content = data_bytes.decode('utf-8').strip().replace(" ", "").replace("\n", "").replace("\r", "").replace("\t", "")
+        
+            is_hex = all(c in "0123456789abcdefABCDEF" for c in content) and len(content) % 2 == 0
+        
+            if is_hex:
+                # Se for Hex, converte os pares de caracteres em bytes reais
+                return bytes.fromhex(content)
+
+            return base64.b64decode(content)
+        except Exception as e:
+            raise ValueError(f"Erro na decodificação (Hex/Base64): {str(e)}")
